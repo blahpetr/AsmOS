@@ -1,4 +1,4 @@
-org 0x7c00
+org 0x7c3e
 
 .draw_CLI:
 	mov ah, 0x00
@@ -75,6 +75,6 @@ org 0x7c00
 
 string_size db 0x00
 
-times (510 - ($ - $$)) db 0
+times (448 - ($ - $$)) db 0 ; 512 boot segment - 2 bytes at the end - 62 bytes due to FAT12 headers
 dw 0xaa55
 
