@@ -36,12 +36,6 @@ org 0x7c3e
 	mov al, 0x0A
 	int 0x10
 
-	mov bx, 0x0500
-	add bx, [string_size]
-	mov al, [bx]
-	mov ah, 0x0E
-	int 0x10
-
 	mov cx, 0x0000
 
 .print:
