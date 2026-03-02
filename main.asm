@@ -16,22 +16,27 @@ org 0x7c3e
 	mov ah, 0x00
 	int 0x16
 
+	cmp al, 0x0D
+	je .handle_command
+
 	mov bx, 0x0000
 	mov bl, [string_size]
 	inc bl
 	mov [string_size], bl ;Increment index
 	add bx, 0x0500
 	mov [bx], al ;Save written char into a string
-
-	cmp al, 0x0D
 	
 	mov ah, 0x0E
 	int 0x10
 
-	jne .wait_for_key
+	jmp .wait_for_key
 
 .handle_command:
 	;Implement
+
+	mov ah, 0x0E
+	mov al, 0x0D
+	int 0x10
 	mov ah, 0x0E
 	mov al, 0x0A
 	int 0x10		; Move carry
@@ -49,6 +54,7 @@ org 0x7c3e
 
 	mov bx, 0x0500
 	add bx, cx
+	add bx, 1
 	mov al, [bx]
 	mov ah, 0x0E
 	int 0x10
