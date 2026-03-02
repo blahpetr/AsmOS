@@ -2,7 +2,7 @@ org 0x7c3e
 
 .draw_CLI:
 	mov ah, 0x00
-	mov [string_size], ah
+	mov [string_size], ah ;Input index
 
 	mov ah, 0x0E
 	mov al, ">"
@@ -10,7 +10,7 @@ org 0x7c3e
 
 	mov ah, 0x0E
 	mov al, " "
-	int 0x10
+	int 0x10			;CLI interface
 
 .wait_for_key:
 	mov ah, 0x00
@@ -19,9 +19,9 @@ org 0x7c3e
 	mov bx, 0x0000
 	mov bl, [string_size]
 	inc bl
-	mov [string_size], bl ;Save written char into a string
+	mov [string_size], bl ;Increment index
 	add bx, 0x0500
-	mov [bx], al
+	mov [bx], al ;Save written char into a string
 
 	cmp al, 0x0D
 	
@@ -34,7 +34,7 @@ org 0x7c3e
 	;Implement
 	mov ah, 0x0E
 	mov al, 0x0A
-	int 0x10
+	int 0x10		; Move carry
 
 	mov cx, 0x0000
 
@@ -62,13 +62,13 @@ org 0x7c3e
 	int 0x10
 
 	mov ah, 0x0E
-	mov al, 0x0A
+	mov al, 0x0A ; Move carry
 	int 0x10
 	
 	jmp .draw_CLI
 
 string_size db 0x00
 
-times (448 - ($ - $$)) db 0 ; 512 boot segment - 2 bytes at the end - 62 bytes due to FAT12 headers
+times (448 - ($ - $$)) db 0 ; 512 boot segment - 2 bytes at the end - 62 bytes due to FAT16 headers
 dw 0xaa55
 
