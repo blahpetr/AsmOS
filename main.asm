@@ -82,35 +82,125 @@ sectorsPerFAT equ 0x7C16
 	jmp .draw_CLI
 
 .run_prg:
+	xor eax, eax
+	xor ebx, ebx
+	xor ecx, ecx
+	mov ax, [numberOfFATs]
+	mov bl, [reservedSectors]
+	mov cx, [sectorsPerFAT]
+	mul ecx
+	add eax, ebx 
+	mov [rootDirStartSector], eax
 
 
+	xor ebx, ebx
+	mov bx, [bytesPerSector]
+	mul ebx
+	mov [rootDirOffset], eax
+
+	xor eax, eax
+	xor ebx, ebx
+	mov ax, [rootEntryCount]
+	mov bl, 0x20
+	mul ebx
+	mov [rootDirSizeBytes], eax	
+
+	xor ebx, ebx
+	xor ecx, ecx
+	xor edx, edx
+	mov bx, [bytesPerSector]
+	mov cx, [bytesPerSector]
+	mov dl, 0x01
+	sub bx, dx
+	add eax, ebx
+	xor edx, edx
+	div ecx
+	mov [rootDirSectors], eax
+
+	cmp edx, 0
+	jne .fail_brokenDisk
+	
+	mov eax, [rootDirStartSector]
+	mov ebx, [rootDirSectors]
+	add eax, ebx
+	mov [firstDataSector], eax
+
+	xor eax, eax
+	xor ebx, ebx
+	mov ax, [reservedSectors]
+	mov bx, [bytesPerSector]
+	add eax, ebx
+	mov [fatOffset], eax
+
+	mov al, 0x10				; DAP size
+	mov [0x9000], al			
+	mov al, 0x00 				; reserved 0
+	mov [0x9001], al
+	mov eax, [rootDirSectors]	; how many sectors to load (1 sector usually 512 bytes)
+	mov [0x9002], ax
+	xor eax, eax				; where to save BX segment (0)
+	mov [0x9004], ax
+	mov [0x9012], eax			; first part of LBA (0 since disk too small)
+	mov ax, 0x8000				; where to save es offset (0x8000)
+	mov [0x9006], ax
+	mov eax, rootDirOffset
+	mov ebx, 0x0200				; second part of LBA, calculated as diskOffset/512
+	div ebx
+	mov [0x9008], eax ; Create the DAP
+
+	mov ah, 0x42
+	mov dl, 0x80
+	mov si, 0x9000
+	int 0x13		; Request read from disk
+	jc .fail_brokenDisk
+
+.find_file:
+	xor eax, eax
+	xor ebx, ebx
+
+
+.incorrectName:
+	xor eax, eax
+	xor ebx, ebx
+	mov eax, [rootDirOffset]
+	mov ebx, 0x20
+	add eax, ebx
+	mov [rootDirOffset], eax
+	jmp .find_file
+
+.fail_fileNotFound:
+	jmp .draw_CLI
+
+.fail_brokenDisk:
+	jmp .draw_CLI
 	
 ;Layout info
-rootDirStartSector db 0x00000000
-rootDirOffset db 0x00000000
-rootDirSizeBytes db 0x00000000
-rootDirSectors db 0x00000000
-firstDataSector db 0x00000000
-fatOffset db 0x00000000
+rootDirStartSector db 0x00000000 ;4 bytes
+rootDirOffset db 0x00000000 ;4 bytes
+rootDirSizeBytes db 0x00000000 ;4 bytes
+rootDirSectors db 0x00000000 ;4 bytes
+firstDataSector db 0x00000000 ;4 bytes
+fatOffset db 0x00000000 ;4 bytes
 
 ;Directory scanning
 entryCount db 0x0000 ;might delete
-entryOffset db 0x00000000
-entryFirstByte db 0x00
-filenameMatch db 0x00
+entryOffset db 0x00000000 ;4 bytes
+entryFirstByte db 0x00 ;1 byte
+filenameMatch db 0x00 ;1 byte
 
 ;File metadata
-firstCluster db 0x0000
-fileSize db 0x00000000
-currentCluster db 0x0000
-nextCluster db 0x0000
+firstCluster db 0x0000 ;2 bytes
+fileSize db 0x00000000 ;4 bytes
+currentCluster db 0x0000 ;2 bytes
+nextCluster db 0x0000 ;2 bytes
 
 ;Cluster math
-firstSectorOfCluster db 0x00000000
-fileDataOffset db 0x00000000
-fatEntryOffset db 0x00000000
+firstSectorOfCluster db 0x00000000 ;4 bytes
+fileDataOffset db 0x00000000 ;4 bytes
+fatEntryOffset db 0x00000000 ;4 bytes
 
-targetName db "HELLO   BIN" ;TODO: Make sure it is connected to the tty
+targetName db "HELLO   " ;TODO: Make sure it is connected to the tty
+targetExtension db "BIN"
 
 string_size db 0x00
 
