@@ -1,4 +1,11 @@
-org 0x7c3e
+org 0x7C3E
+
+bytesPerSector equ 0x7C0B
+sectorsPerCluster equ 0x7C0D
+reservedSectors equ 0x7C0E
+numberOfFATs equ 0x7C10
+rootEntryCount equ 0x7C11
+sectorsPerFAT equ 0x7C16
 
 .draw_CLI:
 	mov ah, 0x00
@@ -72,6 +79,37 @@ org 0x7c3e
 	int 0x10
 	
 	jmp .draw_CLI
+
+.run_prg:
+	
+
+	
+;Layout info
+rootDirStartSector db 0x00000000
+rootDirOffset db 0x00000000
+rootDirSizeBytes db 0x00000000
+rootDirSectors db 0x00000000
+firstDataSector db 0x00000000
+fatOffset db 0x00000000
+
+;Directory scanning
+entryCount db 0x0000 ;might delete
+entryOffset db 0x00000000
+entryFirstByte db 0x00
+filenameMatch db 0x00
+
+;File metadata
+firstCluster db 0x0000
+fileSize db 0x00000000
+currentCluster db 0x0000
+nextCluster db 0x0000
+
+;Cluster math
+firstSectorOfCluster db 0x00000000
+fileDataOffset db 0x00000000
+fatEntryOffset db 0x00000000
+
+targetName db "HELLO   BIN" ;TODO: Make sure it is connected to the tty
 
 string_size db 0x00
 
