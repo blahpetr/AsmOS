@@ -16,7 +16,9 @@ rootDirSectors equ 0x600C ;4 bytes
 firstDataSector equ 0x6010 ;4 bytes
 fatOffset equ 0x6014 ;4 bytes
 curentScanOffset equ 0x6018 ; 2 bytes
+BootDrive equ 0x601A ; 1 byte
 
+	mov [BootDrive], dl
 .draw_CLI:
 	mov ah, 0x00
 	mov [string_size], ah ;Input index
@@ -58,8 +60,6 @@ curentScanOffset equ 0x6018 ; 2 bytes
 	mov al, 0x0A
 	int 0x10		; Move carry
 
-	mov cx, 0x0000
-
 .run_prg:
 	xor eax, eax
 	xor ebx, ebx
@@ -96,8 +96,8 @@ curentScanOffset equ 0x6018 ; 2 bytes
 	div ecx
 	mov [rootDirSectors], eax
 
-	cmp edx, 0
-	jne .fail_brokenDisk
+	;cmp edx, 0
+	;jne .fail_brokenDisk
 	
 	mov eax, [rootDirStartSector]
 	mov ebx, [rootDirSectors]
@@ -119,17 +119,18 @@ curentScanOffset equ 0x6018 ; 2 bytes
 	mov [0x9002], ax
 	xor eax, eax				; where to save BX segment (0)
 	mov [0x9004], ax
-	mov [0x9012], eax			; first part of LBA (0 since disk too small)
+	mov [0x900C], eax			; first part of LBA (0 since disk too small)
 	mov ax, 0x8000				; where to save es offset (0x8000)
 	mov [curentScanOffset], ax
 	mov [0x9006], ax
 	mov eax, rootDirOffset
 	mov ebx, 0x0200				; second part of LBA, calculated as diskOffset/512
+	xor edx, edx
 	div ebx
 	mov [0x9008], eax ; Create the DAP
 
 	mov ah, 0x42
-	mov dl, 0x80
+	mov dl, [BootDrive]
 	mov si, 0x9000
 	int 0x13		; Request read from disk
 	jc .fail_brokenDisk
@@ -170,13 +171,13 @@ curentScanOffset equ 0x6018 ; 2 bytes
 	mov [0x9002], ax
 	xor eax, eax				; where to save BX segment (0)
 	mov [0x9004], ax
-	mov [0x9012], eax			; first part of LBA (0 since disk too small)
+	mov [0x900C], eax			; first part of LBA (0 since disk too small)
 	mov ax, 0x8000				; where to save es offset (0x8000)
 	mov [0x9006], ax
 								; Create the DAP
 
 	mov ah, 0x42
-	mov dl, 0x80
+	mov dl, [BootDrive]
 	mov si, 0x9000
 	int 0x13		; Request read from disk
 	jc .fail_brokenDisk
