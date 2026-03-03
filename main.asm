@@ -1,3 +1,4 @@
+bits 16
 org 0x7C3E
 
 bytesPerSector equ 0x7C0B
@@ -81,7 +82,7 @@ sectorsPerFAT equ 0x7C16
 	jmp .draw_CLI
 
 .run_prg:
-	
+
 
 	
 ;Layout info
