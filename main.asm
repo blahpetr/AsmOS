@@ -118,12 +118,12 @@ BootDrive equ 0x601A ; 1 byte
 	mov eax, [rootDirSectors]	; how many sectors to load (1 sector usually 512 bytes)
 	mov [0x9002], ax
 	xor eax, eax				; where to save BX segment (0)
-	mov [0x9004], ax
+	mov [0x9006], ax
 	mov [0x900C], eax			; first part of LBA (0 since disk too small)
 	mov ax, 0x8000				; where to save es offset (0x8000)
 	mov [curentScanOffset], ax
-	mov [0x9006], ax
-	mov eax, rootDirOffset
+	mov [0x9004], ax
+	mov eax, [rootDirOffset]
 	mov ebx, 0x0200				; second part of LBA, calculated as diskOffset/512
 	xor edx, edx
 	div ebx
@@ -136,20 +136,23 @@ BootDrive equ 0x601A ; 1 byte
 	jc .fail_brokenDisk
 	
 .find_file:
+	mov ax, 0x0000       ; or the segment where 0x8000 resides
+	mov es, ax
+
 	mov bx, [curentScanOffset]
-	mov eax, [bx]
-	mov ebx, [bx+4]
+	mov eax, es:[bx]
+	mov ebx, es:[bx+4]
 	mov ecx, [targetName]
 	mov edx, [targetName+4]
 
 	cmp ax, 0x0000
-	je .fail_fileNotFound
+	je .fail_fileNotFound ;This one gets executed, ax is not supposed to be 0x0000
 	
 	cmp eax, ecx
 	jne .incorrectName
 
 	cmp ebx, edx
-	jne .incorrectName
+	jne .incorrectName 
 
 	xor eax, eax
 	mov bx, [curentScanOffset]
@@ -169,11 +172,11 @@ BootDrive equ 0x601A ; 1 byte
 	mov [0x9001], al
 	mov ax, 0x0001				; how many sectors to load (1 sector usually 512 bytes)
 	mov [0x9002], ax
-	xor eax, eax				; where to save BX segment (0)
+	mov ax, 0x8000				; where to save BX segment (0)
 	mov [0x9004], ax
-	mov [0x900C], eax			; first part of LBA (0 since disk too small)
-	mov ax, 0x8000				; where to save es offset (0x8000)
+	xor eax, eax				; where to save es offset (0x8000)
 	mov [0x9006], ax
+	mov [0x900C], eax			; first part of LBA (0 since disk too small)
 								; Create the DAP
 
 	mov ah, 0x42
@@ -186,12 +189,16 @@ BootDrive equ 0x601A ; 1 byte
 	jmp ax
 
 .incorrectName:
+	mov ah, 0x0E
+	mov al, "."
+	int 0x10
+
 	xor eax, eax
 	xor ebx, ebx
-	mov eax, [rootDirOffset]
+	mov eax, [curentScanOffset]
 	mov ebx, 0x20
 	add eax, ebx
-	mov [rootDirOffset], eax
+	mov [curentScanOffset], eax
 	jmp .find_file
 
 .fail_fileNotFound:
