@@ -1,0 +1,65 @@
+BITS 16
+ORG 0x8000
+
+	mov ah, 0x0E
+	mov al, "H"
+	int 0x10
+	
+	mov ah, 0x0E
+	mov al, "e"
+	int 0x10
+
+	mov ah, 0x0E
+	mov al, "l"
+	int 0x10
+
+	mov ah, 0x0E
+	mov al, "l"
+	int 0x10
+
+	mov ah, 0x0E
+	mov al, "o"
+	int 0x10
+
+	mov ah, 0x0E
+	mov al, ","
+	int 0x10
+
+	mov ah, 0x0E
+	mov al, " "
+	int 0x10
+
+	mov ah, 0x0E
+	mov al, "w"
+	int 0x10
+
+	mov ah, 0x0E
+	mov al, "o"
+	int 0x10
+
+	mov ah, 0x0E
+	mov al, "r"
+	int 0x10
+
+	mov ah, 0x0E
+	mov al, "l"
+	int 0x10
+
+	mov ah, 0x0E
+	mov al, "d"
+	int 0x10
+
+	mov ah, 0x0E
+	mov al, "!"
+	int 0x10
+
+	mov ah, 0x0E
+	mov al, 0x0D
+	int 0x10
+	
+	mov ah, 0x0E
+	mov al, 0x0A
+	int 0x10
+
+	mov ax, 0x7C00
+	jmp ax
