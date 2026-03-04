@@ -18,6 +18,8 @@ fatOffset equ 0x6014 ;4 bytes
 curentScanOffset equ 0x6018 ; 2 bytes
 BootDrive equ 0x601A ; 1 byte
 
+targetName equ 0x0500 ; 8 bytes
+
 	mov [BootDrive], dl
 .draw_CLI:
 	mov ah, 0x00
@@ -42,8 +44,8 @@ BootDrive equ 0x601A ; 1 byte
 	mov bl, [string_size]
 	inc bl
 	mov [string_size], bl ;Increment index
-	add bx, 0x0500
-	mov [bx], al ;Save written char into a string
+	add bx, targetName
+	mov [bx-1], al ;Save written char into a string
 	
 	mov ah, 0x0E
 	int 0x10
@@ -207,7 +209,6 @@ BootDrive equ 0x601A ; 1 byte
 .fail_brokenDisk:
 	jmp .draw_CLI
 
-targetName db "HELLO   " ;TODO: Make sure it is connected to the tty
 targetExtension db "BIN"
 
 string_size db 0x00
