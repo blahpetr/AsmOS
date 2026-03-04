@@ -191,9 +191,6 @@ targetName equ 0x0500 ; 8 bytes
 	jmp ax
 
 .incorrectName:
-	mov ah, 0x0E
-	mov al, "."
-	int 0x10
 
 	xor eax, eax
 	xor ebx, ebx
