@@ -21,6 +21,12 @@ BootDrive equ 0x601A ; 1 byte
 targetName equ 0x0500 ; 8 bytes
 
 	mov [BootDrive], dl
+
+.start:
+	mov eax, 0x20202020
+	mov [targetName], eax
+	mov [targetName+4], eax
+	
 .draw_CLI:
 	mov ah, 0x00
 	mov [string_size], ah ;Input index
@@ -202,12 +208,10 @@ targetName equ 0x0500 ; 8 bytes
 	jmp .find_file
 
 .fail_fileNotFound:
-	jmp .draw_CLI
+	jmp .start
 
 .fail_brokenDisk:
-	jmp .draw_CLI
-
-targetExtension db "BIN"
+	jmp .start
 
 string_size db 0x00
 
