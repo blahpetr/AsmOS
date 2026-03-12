@@ -172,7 +172,8 @@ targetName equ 0x0500 ; 8 bytes
 	mov [0x9000], al			
 	mov al, 0x00 				; reserved 0
 	mov [0x9001], al
-	mov ax, 0x0001				; how many sectors to load (1 sector usually 512 bytes)
+	xor ax, ax
+	mov al, [sectorsPerCluster] ; how many sectors to load (1 sector usually 512 bytes)
 	mov [0x9002], ax
 	mov ax, 0x8000				; where to save BX segment (0)
 	mov [0x9004], ax
